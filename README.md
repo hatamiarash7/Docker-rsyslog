@@ -1,5 +1,7 @@
 # Docker rsyslog
 
+[![GitHub license](https://img.shields.io/github/license/hatamiarash7/docker-rsyslog)](https://github.com/hatamiarash7/docker-rsyslog/blob/master/LICENSE) [![Release](https://github.com/hatamiarash7/Docker-rsyslog/actions/workflows/docker.yml/badge.svg)](https://github.com/hatamiarash7/Docker-rsyslog/actions/workflows/docker.yml) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/hatamiarash7/rsyslog)
+
 Deploy rsyslog server using Docker.
 
 ## Usage
