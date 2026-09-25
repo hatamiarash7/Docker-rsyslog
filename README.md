@@ -2,14 +2,108 @@
 
 [![GitHub license](https://img.shields.io/github/license/hatamiarash7/docker-rsyslog)](https://github.com/hatamiarash7/docker-rsyslog/blob/master/LICENSE) [![Release](https://github.com/hatamiarash7/Docker-rsyslog/actions/workflows/docker.yml/badge.svg)](https://github.com/hatamiarash7/Docker-rsyslog/actions/workflows/docker.yml) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/hatamiarash7/rsyslog)
 
-Deploy rsyslog server using Docker.
+Deploy an rsyslog server using Docker.
 
-## Usage
+## Image details
 
-Run your container using this command:
+- Exposed port: `514/udp` (syslog)
+- Runs `rsyslogd` in foreground mode by default
+- Includes a custom entrypoint that removes stale PID files before startup
+- Image implementation details are defined in the [Dockerfile](./Dockerfile)
+
+## Quick start
 
 ```bash
-docker run -d --name rsyslog -p 514:514/udp hatamiarash7/rsyslog:v1.1.0
+docker run -d \
+  --name rsyslog \
+  -p 514:514/udp \
+  hatamiarash7/rsyslog:v1.1.0
+```
+
+## Configuration
+
+The container ships with `/etc/rsyslog.conf`:
+
+```conf
+$ModLoad imudp.so
+
+$template SimpleFormat,"%msg%\n"
+
+*.* /proc/self/fd/2;SimpleFormat
+
+$MaxMessageSize 20k
+
+$UDPServerRun 514
+```
+
+### Default behavior
+
+- Listens for syslog messages on UDP `514`
+- Writes received messages to container `stderr` (Docker logs)
+- Accepts message size up to `20k`
+
+### Use your own rsyslog config
+
+```bash
+docker run -d \
+  --name rsyslog \
+  -p 514:514/udp \
+  -v $(pwd)/rsyslog.conf:/etc/rsyslog.conf:ro \
+  hatamiarash7/rsyslog:v1.1.0
+```
+
+## Usage examples
+
+### Enable debug in entrypoint
+
+When `DEBUG` is set (for example `DEBUG=1`), the entrypoint enables shell trace mode (`set -x`) so startup commands are printed in container logs.
+
+```bash
+docker run -d \
+  --name rsyslog \
+  -e DEBUG=1 \
+  -p 514:514/udp \
+  hatamiarash7/rsyslog:v1.1.0
+```
+
+### Persist logs to a host file with custom config
+
+Create `rsyslog-file.conf`:
+
+```conf
+$ModLoad imudp.so
+$UDPServerRun 514
+
+*.* /var/log/remote.log
+```
+
+Prepare the host directory first (it must exist and be writable):
+
+```bash
+mkdir -p logs
+```
+
+Run the container:
+
+```bash
+docker run -d \
+  --name rsyslog \
+  -p 514:514/udp \
+  -v $(pwd)/rsyslog-file.conf:/etc/rsyslog.conf:ro \
+  -v $(pwd)/logs:/var/log \
+  hatamiarash7/rsyslog:v1.1.0
+```
+
+### Docker Compose
+
+```yaml
+services:
+  rsyslog:
+    image: hatamiarash7/rsyslog:v1.1.0
+    container_name: rsyslog
+    ports:
+      - "514:514/udp"
+    restart: unless-stopped
 ```
 
 ---
