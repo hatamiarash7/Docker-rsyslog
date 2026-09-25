@@ -6,10 +6,10 @@ Deploy an rsyslog server using Docker.
 
 ## Image details
 
-- Base image: `alpine:3.24.2`
-- Installed packages: `rsyslog`, `bash`
-- Exposed port: `514` (UDP syslog)
-- Default command: `rsyslogd -n`
+- Exposed port: `514/udp` (syslog)
+- Runs `rsyslogd` in foreground mode by default
+- Includes a custom entrypoint that removes stale PID files before startup
+- Image implementation details are defined in the [Dockerfile](./Dockerfile)
 
 ## Quick start
 
@@ -55,6 +55,8 @@ docker run -d \
 ## Usage examples
 
 ### Enable debug in entrypoint
+
+When `DEBUG` is set (for example `DEBUG=1`), the entrypoint enables shell trace mode (`set -x`) so startup commands are printed in container logs.
 
 ```bash
 docker run -d \
