@@ -77,6 +77,12 @@ $UDPServerRun 514
 *.* /var/log/remote.log
 ```
 
+Prepare the host directory first (it must exist and be writable):
+
+```bash
+mkdir -p logs
+```
+
 Run the container:
 
 ```bash
